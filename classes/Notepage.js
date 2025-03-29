@@ -1,51 +1,41 @@
-class Notepage
-{
-    constructor(title, content, date, id) 
-    {
+class Notepage {
+    constructor(title, content, date, id) {
         this.title = String(title);
         this.content = content;
         this.date = new Date(date); 
         this.id = id;
     }
 
-    getContent()
-    {
+    getContent() {
         return this.content;
     }
 
-    setContent(newContent) 
-    {
+    setContent(newContent) {
         this.content = newContent;
     }
 
-    getTitle()
-    {
+    getTitle() {
         return this.title;
     }
 
-    setTitle(newTitle)
-    {
+    setTitle(newTitle) {
         this.title = newTitle;
     }
 
-    getDate()
-    {
+    getDate() {
         return this.date;
     }
 
-    setDate()
-    {
+    setDate(date) {  // Added 'date' parameter
         this.date = new Date(date);
     }
 
-    getID()
-    {
+    getID() {
         return this.id;
     }
 
-    toObject()
-    {
-        return{
+    toObject() {
+        return {
             title: this.title,
             content: this.content,
             date: this.date,

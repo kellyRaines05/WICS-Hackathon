@@ -1,88 +1,73 @@
 class Friend {
-    constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, notebook) 
-    {
+    constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email, notebook) {
         this.friendID = String(friendID);
         this.name = String(name);
         this.pronouns = pronouns; //pronouns is an array of arrays. e.g. [[she, her], [they, them]] || [[he, him]]
         this.address = String(address); 
         this.birthday = new Date(birthday);
-        this.importantDates = []; //list of Dates --> make a class as well?
-        this.notePage = ""; //make full notebook instead?
+        this.importantDates = []; //list of Dates
+        this.notePage = ""; // You may decide to use a notebook or note page in the future
         this.likes = likes; //likes is array of likes
         this.dislikes = dislikes; //same
         this.phoneNumber = String(phoneNumber);
         this.email = String(email);
-        this.notebook = notebook;
+        this.notebook = notebook;  // This links the Friend with a Notebook instance
     }
 
-    getName() 
-    { 
+    getName() { 
         return this.name; 
     }
 
-    setName(name) 
-    { 
+    setName(name) { 
         this.name = String(name); 
     }
 
-    getPronouns() 
-    { 
+    getPronouns() { 
         return this.pronouns; 
     }
 
-    setPronouns(newPronouns) 
-    {
+    setPronouns(newPronouns) {
         this.pronouns = newPronouns;
     }
 
-    getAddress() 
-    { 
+    getAddress() { 
         return this.address; 
     }
 
-    setAddress(address) 
-    { 
+    setAddress(address) { 
         this.address = String(address); 
     }
 
-    getBirthday() 
-    { 
+    getBirthday() { 
         return this.birthday; 
     }
 
-    setBirthday(birthday) 
-    { 
+    setBirthday(birthday) { 
         this.birthday = new Date(birthday); 
     }
 
-    getImportantDates() 
-    { 
+    getImportantDates() { 
         return this.importantDates; 
     }
 
-    addImportantDate(date) 
-    {
-        if (date instanceof Date) 
-        {
+    addImportantDate(date) {
+        if (date instanceof Date) {
             this.importantDates.push(date);
         }
     }
 
-    getNotePage() 
-    { 
+    getNotePage() { 
         return this.notePage; 
     }
 
-    setNotePage(note) 
-    { 
+    setNotePage(note) { 
         this.notePage = String(note);
     }
 
-    toObject() 
-    {
+    toObject() {
       return {
         friendID: this.friendID, 
-        name: this.nanme, 
+        name: this.name,  // Corrected typo: 'this.nanme' → 'this.name'
         pronouns: this.pronouns,
         address: this.address,
         birthday: this.birthday,
@@ -91,7 +76,7 @@ class Friend {
         dislikes: this.dislikes,
         phoneNumber: this.phoneNumber,
         email: this.email,
-        notebook: this.notebook.toObject(),
+        notebook: this.notebook.toObject(),  // Will call notebook's toObject method
       };
     }
 
@@ -110,5 +95,4 @@ class Friend {
             notebook: ${this.notebook ? this.notebook.toString() : "No notebook"}
         }`;
     }
-    
 }
