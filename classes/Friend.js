@@ -1,5 +1,5 @@
 class Friend {
-    constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email, notebook) {
+    constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email) {
         this.friendID = String(friendID);
         this.name = String(name);
         this.pronouns = pronouns; //pronouns is an array of arrays. e.g. [[she, her], [they, them]] || [[he, him]]
@@ -11,7 +11,7 @@ class Friend {
         this.dislikes = dislikes; //same
         this.phoneNumber = String(phoneNumber);
         this.email = String(email);
-        this.notebook = notebook;  // This links the Friend with a Notebook instance
+        this.notebook = new Notebook();  // This links the Friend with a Notebook instance
     }
 
     getName() { 
