@@ -7,7 +7,7 @@ class FriendList {
     // Add a new friend to the list
     addFriend(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email) 
     {
-        newFriend = new Friend(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email)
+        const newFriend = new Friend(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email)
         this.friends.push(newFriend);
     }
 

@@ -7,7 +7,7 @@ class ReminderList
 
     saveRemindersToJSON()
     {
-        const reminderObjects = reminders.map(Reminder => Reminder.toObject());
+        const reminderObjects = this.reminders.map(Reminder => Reminder.toObject());
 
         //convert the array to a JSON string
         const jsonString = JSON.stringify(reminderObjects, null, 2);
@@ -62,7 +62,7 @@ class ReminderList
 
     addReminder(friendID, reminderName, reminderID, type, messageDraft, nextNotification)
     {
-        newReminder = new Reminder(friendID, reminderName, reminderID, type, messageDraft, nextNotification);
+        const newReminder = new Reminder(friendID, reminderName, reminderID, type, messageDraft, nextNotification);
         this.reminders.push(newReminder);
     }
 
