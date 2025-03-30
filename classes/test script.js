@@ -26,7 +26,7 @@ class Notepage {
         return this.date;
     }
 
-    setDate(date) {  // Added 'date' parameter
+    setDate(date) { 
         this.date = new Date(date);
     }
 

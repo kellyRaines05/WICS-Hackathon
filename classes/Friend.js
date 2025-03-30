@@ -6,7 +6,6 @@ class Friend {
         this.pronouns = pronouns; //pronouns is an array of arrays. e.g. [[she, her], [they, them]] || [[he, him]]
         this.address = String(address); 
         this.birthday = new Date(birthday);
-        this.importantDates = []; //list of Dates
         this.notePage = ""; // You may decide to use a notebook or note page in the future
         this.likes = likes; //likes is array of likes
         this.dislikes = dislikes; //same
@@ -47,15 +46,6 @@ class Friend {
         this.birthday = new Date(birthday); 
     }
 
-    getImportantDates() { 
-        return this.importantDates; 
-    }
-
-    addImportantDate(date) {
-        if (date instanceof Date) {
-            this.importantDates.push(date);
-        }
-    }
 
     getNotePage() { 
         return this.notePage; 
@@ -72,7 +62,6 @@ class Friend {
         pronouns: this.pronouns,
         address: this.address,
         birthday: this.birthday,
-        importantDates: this.importantDates,
         likes: this.likes,
         dislikes: this.dislikes,
         phoneNumber: this.phoneNumber,
@@ -88,7 +77,6 @@ class Friend {
             pronouns: ${JSON.stringify(this.pronouns)},
             address: ${this.address},
             birthday: ${this.birthday.toDateString()},
-            importantDates: [${this.importantDates.map(date => date.toDateString()).join(", ")}],
             likes: [${this.likes.join(", ")}],
             dislikes: [${this.dislikes.join(", ")}],
             phoneNumber: ${this.phoneNumber},

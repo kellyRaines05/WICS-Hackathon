@@ -25,4 +25,16 @@ class CustomAttrribute
     {
         this.description = String(newDescription);
     }
+
+    toString() {
+        return `CustomAttribute { name: "${this.name}", description: "${this.description}" }`;
+    }
+
+    toObject() {
+        return {
+            name: this.name,
+            description: this.description
+        };
+    }
+
 }
