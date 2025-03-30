@@ -1,4 +1,0 @@
-class TextReminder extends TextReminder
-{
-    
-}

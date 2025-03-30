@@ -1,4 +1,0 @@
-class PhonecallReminder extends Reminder
-{
-    
-}
