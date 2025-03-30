@@ -1,4 +1,4 @@
-const Reminder = require('./Randomizer'); 
+const ReminderRandom = require('./Randomizer'); 
 
 class Reminder
 {

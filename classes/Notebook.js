@@ -1,4 +1,4 @@
-const Notebook = require('./Notepage');
+const NotebookPage = require('./Notepage');
 
 class Notebook {
     constructor() {

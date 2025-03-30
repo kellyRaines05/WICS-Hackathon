@@ -1,4 +1,4 @@
-const Friend = require('./Notebook');
+const Notebook = require('./Notebook');
 
 class Friend {
     constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email) 

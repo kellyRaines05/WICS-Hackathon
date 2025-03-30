@@ -10,6 +10,8 @@ import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { Calendar } from 'react-native-calendars';
+import Friend from './classes/Friend.js'
+import * as FileSystem from 'expo-file-system';
 
 // Contact Book Page
 const ContactBook = ({ navigation }) => {
@@ -53,6 +55,12 @@ const ContactBook = ({ navigation }) => {
 // Profile Page
 const Profile = ({ route, navigation }) => {
   const { friend_id } = route.params;
+  const [profileImage, setProfileImage] = useState(null);
+  const defaultImage = 'assets/default.png';
+
+  const changeProfilePic = () => {
+    setProfileImage({ uri: '' });
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -66,6 +74,25 @@ const Profile = ({ route, navigation }) => {
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Profile Icon */}
+      <TouchableOpacity onPress={changeProfilePic}>
+        <View style={styles.profileIconContainer}>
+          <Image
+            source={profileImage || defaultImage}
+            style={styles.profileImage}
+            resizeMode="cover"
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Profile Info */}
+
+      {/* Reminder List */}
+
+      {/* Set Automations */}
+
+      {/* Display Notebook */}
     </GestureHandlerRootView>
   );
 };
@@ -77,6 +104,8 @@ const AddFriend = ({ navigation }) => {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
+  const [likes, setLikes] = useState('');
+  const [dislikes, setDislikes] = useState('');
 
   const [birthday, setBirthday] = useState(null);
   const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
@@ -121,19 +150,53 @@ const AddFriend = ({ navigation }) => {
     setPronouns(updatedPronouns);
   };
 
+  async function addFriendJson(friendObj) {
+    const path = `${FileSystem.documentDirectory}/friend_list.json`;
+    try {
+      const fileExists = await FileSystem.getInfoAsync(path);
+
+      if (fileExists.exists) {
+        console.log(path); // DEBUGGING
+        // get existing data from file
+        const data = await FileSystem.readAsStringAsync(path);
+        existingObj = JSON.parse(data);
+
+        if (!Array.isArray(existingObj)) {
+          existingObj = [];
+        }
+
+        // Append new friend to json
+        existingObj.push(friendObj);
+        await FileSystem.writeAsStringAsync(path, JSON.stringify(existingObj, null, 4));
+      } else {
+        // create new file with friend obj.
+        await FileSystem.writeAsStringAsync(path, JSON.stringify([friendObj], null, 4));
+      }
+      return true;
+    }
+    catch (error) {
+      Alert.alert('Error', `${error}: Try Again Later.`);
+      return false;
+    }
+  }
+
   // Submit function
   const handleSubmit = () => {
     if (!friendName.trim()) {
       Alert.alert('Error', 'Please enter a name.');
       return;
     }
+    var friendID = 0;
+    // const Friend = require('./classes/Friend.js');
+    const newFriend = new Friend(friendID, friendName, pronouns, address, birthday, likes, dislikes, phoneNumber, email);
+    const frenObj = newFriend.toObject();
 
-    // TODO: ADD BELLA'S FUNCTION TO ADD FRIEND TO OBJECT
-
-    Alert.alert('Success', `Added ${friendName}`);
-    navigation.goBack();
+    if (addFriendJson(frenObj)) {
+      Alert.alert('Success', `Added ${friendName}`);
+      navigation.goBack();
+    }
   };
-
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -190,6 +253,14 @@ const AddFriend = ({ navigation }) => {
               {/* Email Input */}
               <Text style={styles.label}>Email Address</Text>
               <TextInput style={styles.input} placeholder="Enter friend's email address" value={email} onChangeText={setEmail} />
+
+              {/* Likes Input */}
+              <Text style={styles.label}>Likes</Text>
+              <TextInput style={styles.input} placeholder="Enter friend's likes" value={likes} onChangeText={setLikes} />
+
+              {/* Dislike Input */}
+              <Text style={styles.label}>Dislikes</Text>
+              <TextInput style={styles.input} placeholder="Enter friend's dislikes" value={dislikes} onChangeText={setDislikes} />
 
               {/* Birthday Picker */}
               <Text style={styles.label}>Birthday</Text>
@@ -506,7 +577,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={[styles.widget_container, { backgroundColor: widgetContainerBg }]}>
         <DraggableFlatList
           data={widgets}
-          onDragEnd={({ data }) => setWidgets(data)}
+          onDragEnd={({ data }) => setWidget(data)}
           keyExtractor={(item) => item.id}
           renderItem={({ item, drag }) => (
             <TouchableOpacity
@@ -751,5 +822,16 @@ const styles = StyleSheet.create({
     height: 400,
     borderRadius: 10,
     padding: 10,
+  },
+  profileIconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
   },
 });

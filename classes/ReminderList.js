@@ -1,4 +1,4 @@
-const ReminderList = require('./Reminder');
+const Reminder = require('./Reminder');
 
 class ReminderList
 {
