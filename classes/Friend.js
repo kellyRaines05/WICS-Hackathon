@@ -1,5 +1,6 @@
 class Friend {
-    constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email) {
+    constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email) 
+    {
         this.friendID = String(friendID);
         this.name = String(name);
         this.pronouns = pronouns; //pronouns is an array of arrays. e.g. [[she, her], [they, them]] || [[he, him]]

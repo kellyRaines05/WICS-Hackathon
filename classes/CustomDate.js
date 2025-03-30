@@ -36,4 +36,23 @@ class CustomDate
     {
         this.description = String(newDescription)
     }
+
+    toObject() 
+    {
+        return {
+            name: this.name,
+            date: this.date.toISOString(), // Converts Date to a standard format
+            description: this.description
+        };
+    }
+
+    toString() 
+    {
+        return `CustomDate { 
+            name: "${this.name}", 
+            date: "${this.date.toDateString()}", 
+            description: "${this.description}" 
+        }`;
+    }
+
 }
