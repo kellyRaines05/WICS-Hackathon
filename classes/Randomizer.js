@@ -1,3 +1,6 @@
+/*
+major syncing problem here
+*/
 class Randomizer {
     constructor() 
     {
