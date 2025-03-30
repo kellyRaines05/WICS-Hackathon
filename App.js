@@ -9,7 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-
+import { Calendar } from 'react-native-calendars';
 
 // Contact Book Page
 const ContactBook = ({ navigation }) => {
@@ -304,18 +304,50 @@ const AddReminder = ({ navigation }) => {
 };
 
 // Calendar Page
-const Calendar = ({ navigation }) => {
+const CalendarUI = ({ navigation }) => {
+  const [all_reminders, setReminders] = useState([]);
+
+  // const getAllReminders = async () => {
+  //   // Simulated reminders data structure
+  //   return [
+  //     { nextNotification: '2025-03-29', reminderName: 'Test Reminder 1' },
+  //     { nextNotification: '2025-03-30', reminderName: 'Test Reminder 2' },
+  //     { nextNotification: '2025-03-31', reminderName: 'Test Reminder 3' },
+  //   ];
+  // };
+  
+  useEffect(() => {
+    const fetchNames = async () => {
+      const reminders = await getAllReminders(); // TODO: connect bella's getter here
+      setReminders(reminders);
+    };
+
+    fetchNames();
+  }, []);
+
+
+  const markedDates = all_reminders.reduce((acc, reminder) => {
+    const formattedDate = reminder.nextNotification.toLocaleString();
+    acc[formattedDate] = { selected: true, selectedColor: 'blue' };
+    return acc;
+  }, {});
+
   return (
     <GestureHandlerRootView style={{ flex: 1}}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Calendar Here</Text>
+        <Text style={styles.welcomeText}>Calendar</Text>
         <TouchableOpacity
           style={styles.settingsButton}
           onPress={() => navigation.navigate('Settings')}
         >
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
+      </View>
+
+      {/* Calendar */}
+      <View style={styles.calendarContainer}>
+        <Calendar markedDates={markedDates} style={styles.calendar}/>
       </View>
     </GestureHandlerRootView>
   );
@@ -454,7 +486,7 @@ const HomeScreen = ({ navigation }) => {
   const [widgets, setWidgetText] = useState([
     { id: 'reminders', title: '🟡 Reminders', content: '[Autofill value] Upcoming'},
     { id: 'contact_book', title: '🔗 Contact Book', content: 'You have [Autofill value] Contacts' },
-    { id: 'calendar', title: '📅 Calendar', content: 'Open Calendar' },
+    { id: 'calendarUI', title: '📅 Calendar', content: 'Open Calendar' },
   ]);
 
   return (
@@ -482,7 +514,7 @@ const HomeScreen = ({ navigation }) => {
               onLongPress={drag}
               onPress={() => {
                 if (item.id === 'contact_book') navigation.navigate('ContactBook');
-                if (item.id === 'calendar') navigation.navigate('Calendar');
+                if (item.id === 'calendarUI') navigation.navigate('CalendarUI');
                 if (item.id === 'reminders') navigation.navigate('RemindersPage')
               }}
             >
@@ -510,7 +542,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="ContactBook" component={ContactBook} />
-        <Stack.Screen name="Calendar" component={Calendar} />
+        <Stack.Screen name="CalendarUI" component={CalendarUI} />
         <Stack.Screen name="RemindersPage" component={RemindersList} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Settings" component={Settings} />
@@ -707,5 +739,17 @@ const styles = StyleSheet.create({
   removeButtonText: { 
     color: 'white', 
     fontWeight: 'bold' 
-  }
+  },
+  calendarContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  calendar: {
+    width: 300,
+    height: 400,
+    borderRadius: 10,
+    padding: 10,
+  },
 });
