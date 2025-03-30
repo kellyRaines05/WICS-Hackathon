@@ -52,3 +52,6 @@ class Notepage {
         }`;
     }
 }
+
+
+module.exports = Notepage;

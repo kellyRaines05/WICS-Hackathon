@@ -1,3 +1,5 @@
+const Friend = require('./Friend'); // Import the Friend class
+
 class FriendList {
     constructor() 
     {
@@ -92,3 +94,5 @@ class FriendList {
             this.friends.map(friend => friend.toString()).join("\n\n");
     }
 }
+
+module.exports = FriendList;

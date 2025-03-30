@@ -1,3 +1,5 @@
+const Notebook = require('./Notepage');
+
 class Notebook {
     constructor() {
         this.pages = [];  // array of Notepage class instances
@@ -35,3 +37,5 @@ class Notebook {
         }`;
     }
 }
+
+module.exports = Notebook;

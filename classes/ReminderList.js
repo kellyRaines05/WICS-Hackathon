@@ -1,3 +1,5 @@
+const ReminderList = require('./Reminder');
+
 class ReminderList
 {
     constructor()
@@ -81,3 +83,5 @@ class ReminderList
         return this.reminders.length;
     }
 }
+
+module.exports = ReminderList;

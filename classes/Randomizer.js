@@ -54,3 +54,5 @@ class Randomizer {
     }
 
 }
+
+module.exports = ReminderList;

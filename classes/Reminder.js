@@ -1,4 +1,4 @@
-//const { getRandomDate } = require('./Randomizer'); // Import the getRandomDate function
+const Reminder = require('./Randomizer'); 
 
 class Reminder
 {
@@ -96,3 +96,5 @@ class Reminder
         };
     }
 }
+
+module.exports = Reminder;

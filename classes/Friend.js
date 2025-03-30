@@ -1,3 +1,5 @@
+const Friend = require('./Notebook');
+
 class Friend {
     constructor(friendID, name, pronouns, address, birthday, likes, dislikes, phoneNumber, email) 
     {
@@ -85,3 +87,5 @@ class Friend {
         }`;
     }
 }
+
+module.exports = Friend;
