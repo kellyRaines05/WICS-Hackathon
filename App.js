@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet,
   StatusBar, Dimensions, Animated, Image, Alert,
   Platform, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
@@ -8,33 +8,44 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
+
 
 // Contact Book Page
-const ContactBook = ({ navigation }) => (
-  <View style={styles.header}>
-    <Text style={styles.welcomeText}>My Friends</Text>
-    <TouchableOpacity
-      style={styles.settingsButton}
-      onPress={() => navigation.navigate('Settings')}
-    >
-      <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
-  </View>
-);
+const ContactBook = ({ navigation }) => {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>My Friends</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.settingsText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+    </GestureHandlerRootView>
+  );
+};
 
 // Profile Page
-const Profile = ({ navigation }) => (
-  <View style={styles.header}>
-    <Text style={styles.pageText}>My Friends</Text>
-    <TouchableOpacity
-      style={styles.settingsButton}
-      onPress={() => navigation.navigate('Settings')}
-    >
-      <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
-  </View>
-);
+const Profile = ({ navigation }) => {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.pageText}>This Friends</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.settingsText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+    </GestureHandlerRootView>
+  );
+};
 
 // Add Friend Page
 const AddFriend = ({ navigation }) => {
@@ -114,7 +125,7 @@ const AddFriend = ({ navigation }) => {
       return;
     }
 
-    // TODO: ADD BELLA'S FUNCTION
+    // TODO: ADD BELLA'S FUNCTION TO ADD FRIEND TO OBJECT
 
     Alert.alert('Success', `Added ${friendName}`);
     navigation.goBack();
@@ -125,6 +136,7 @@ const AddFriend = ({ navigation }) => {
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {/* Header */}
             <View style={styles.header}>
               <Text style={styles.welcomeText}>Add Friend</Text>
               <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate('Settings')}>
@@ -219,57 +231,151 @@ const AddFriend = ({ navigation }) => {
 };
 
 // Add Reminder Page
-const AddReminder = ({ navigation }) => (
-  <View style={styles.header}>
-    <Text style={styles.welcomeText}>Add Reminder</Text>
-    <TouchableOpacity
-      style={styles.settingsButton}
-      onPress={() => navigation.navigate('Settings')}
-    >
-      <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
-  </View>
-);
+const AddReminder = ({ navigation }) => {
+  const [selectedName, setSelectedName] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+  const [friend_names, setNames] = useState([]);
+  const [customText, setCustomText] = useState('');
 
+  useEffect(() => {
+    const fetchNames = async () => {
+      const fetchedNames = await getAllFriends(); // TODO: connect bella's getter here
+      setNames(fetchedNames);
+    };
+
+    fetchNames();
+  }, []);
+
+  // Submit function
+  const handleSubmit = () => {
+    if (selectedType === " " || !selectedType) {
+      Alert.alert('Error', 'Please select a reminder type.');
+      return;
+    }
+    if (selectedType === "Message" || selectedType === "Custom Reminder") {
+      if (!customText.trim()) {
+        Alert.alert('Error', 'Please enter a message.');
+        return;
+      }
+    }
+
+    // TODO: ADD BELLA'S FUNCTION TO ADD REMINDER TO OBJECT
+
+    Alert.alert('Success', `Added Reminder for ${friend_names}`);
+    navigation.goBack();
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1}}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Add Reminder</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.settingsText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+    <View style={styles.container}>
+      {/* Pick a Friend to set Reminder */}
+      <Text style={styles.label}>Select a Friend</Text>
+      <Picker
+        selectedValue={selectedName}
+        onValueChange={(itemValue) => setSelectedName(itemValue)}
+        style={styles.picker}
+      >
+      {friend_names.map((name, index) => (
+        <Picker.Item key={index} label={name} value={name} />
+      ))}
+      </Picker>
+
+      {/* Pick Type of Reminder */}
+      <Text style={styles.label}>Reminder Type</Text>
+      <Picker
+        selectedValue={selectedType}
+        onValueChange={(itemValue) => setSelectedType(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label=" " value=" "/>
+        <Picker.Item label="Message" value="Message"/>
+        <Picker.Item label="Call" value="Call"/>
+        <Picker.Item label="Custom Reminder" value="Custom Reminder"/>
+      </Picker>
+      
+      {/* TextInput Required for "Message" or "Custom Reminder" */}
+      {(selectedType === 'Message' || selectedType === 'Custom Reminder') && (
+        <TextInput
+          style={styles.input}
+          placeholder="Enter details"
+          value={customText}
+          onChangeText={setCustomText}
+        />
+      )}
+
+      {/* Submit Button */}
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitButtonText}>Save Reminder</Text>
+      </TouchableOpacity>
+
+    </View>
+  </GestureHandlerRootView>
+  );
+};
 
 // Calendar Page
-const Calendar = ({ navigation }) => (
-  <View style={styles.header}>
-    <Text style={styles.welcomeText}>Calendar Here</Text>
-    <TouchableOpacity
-      style={styles.settingsButton}
-      onPress={() => navigation.navigate('Settings')}
-    >
-      <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
-  </View>
-);
+const Calendar = ({ navigation }) => {
+  return (
+    <GestureHandlerRootView style={{ flex: 1}}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Calendar Here</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.settingsText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+    </GestureHandlerRootView>
+  );
+};
 
 // Reminders Page
-const RemindersList = ({ navigation }) => (
-  <View style={styles.header}>
-    <Text style={styles.welcomeText}>My Reminders</Text>
-    <TouchableOpacity
-      style={styles.settingsButton}
-      onPress={() => navigation.navigate('Settings')}
-    >
-      <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
-  </View>
-);
+const RemindersList = ({ navigation }) => {
+  return (
+    <GestureHandlerRootView style={{ flex: 1}}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>My Reminders</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.settingsText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+    </GestureHandlerRootView>
+  );
+};
 
 // Settings Page
-const Settings = ({ navigation }) => (
-  <View style={styles.header}>
-    <Text style={styles.welcomeText}>Settings</Text>
-    <TouchableOpacity
-      style={styles.settingsButton}
-      onPress={() => navigation.navigate('Settings')}
-    >
-      <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
-  </View>
-);
+const Settings = ({ navigation }) => {
+  return (
+    <GestureHandlerRootView style={{ flex: 1}}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Settings</Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Text style={styles.settingsText}>⚙️</Text>
+        </TouchableOpacity>
+      </View>
+    </GestureHandlerRootView>
+  );
+};
 
 const FloatingAddButton = ({ setWidgetContainerBg, setWidgetBg }) => {  
   const navigation = useNavigation();
@@ -560,6 +666,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
+    marginTop: 5,
   },
   submitButtonText: {
     color: 'white',
