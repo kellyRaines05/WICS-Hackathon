@@ -13,8 +13,19 @@ import { Picker } from '@react-native-picker/picker';
 
 // Contact Book Page
 const ContactBook = ({ navigation }) => {
+  const [friend_names, setNames] = useState([]);
+
+  useEffect(() => {
+    const fetchNames = async () => {
+      const fetchedNames = await getAllFriends(); // TODO: connect bella's getter here
+      setNames(fetchedNames);
+    };
+
+    fetchNames();
+  }, []);
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1}}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.welcomeText}>My Friends</Text>
@@ -25,12 +36,24 @@ const ContactBook = ({ navigation }) => {
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Display All Friends */}
+      {friend_names.map((friend, index) => (
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Profile', {friend_id: friend.friendID})}
+        >
+          <Text style={styles.pageText}> {friend.name} </Text>
+        </TouchableOpacity>
+      ))}
     </GestureHandlerRootView>
   );
 };
 
 // Profile Page
-const Profile = ({ navigation }) => {
+const Profile = ({ route, navigation }) => {
+  const { friend_id } = route.params;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       {/* Header */}
@@ -57,9 +80,6 @@ const AddFriend = ({ navigation }) => {
 
   const [birthday, setBirthday] = useState(null);
   const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
-
-  const [importantDates, setImportantDates] = useState([{name: "", date: null}])
-  const [showDatePickerIndex, setShowDatePickerIndex] = useState(null);
 
   const [pronounWidth, setPronounWidth] = useState('48%');
 
@@ -99,23 +119,6 @@ const AddFriend = ({ navigation }) => {
     const updatedPronouns = [...pronouns];
     updatedPronouns[index][pos] = value;
     setPronouns(updatedPronouns);
-  };
-
-  // Add new important date row
-  const addImportantDate = () => {
-    setImportantDates([...importantDates, { name: '', date: null }]);
-  };
-
-  // Remove an important date row
-  const removeImportantDate = (index) => {
-    setImportantDates(importantDates.filter((_, i) => i !== index));
-  };
-
-  // Update important date name
-  const updateImportantDateName = (index, value) => {
-    const updatedDates = [...importantDates];
-    updatedDates[index].name = value;
-    setImportantDates(updatedDates);
   };
 
   // Submit function
@@ -194,29 +197,6 @@ const AddFriend = ({ navigation }) => {
                 <Text style={styles.datePickerText}>{birthday ? birthday.toDateString() : 'Select Birthday 🎂'}</Text>
               </TouchableOpacity>
               {showBirthdayPicker && <DateTimePicker value={birthday || new Date()} mode="date" display="default" onChange={(e, d) => onChangeDate(e, d, null)} />}
-
-              {/* Important Dates */}
-              <Text style={styles.label}>Important Dates</Text>
-              {importantDates.map((item, index) => (
-                <View key={index} style={styles.importantDateRow}>
-                  <TextInput
-                    style={[styles.input, {width: "45%"}]}
-                    placeholder="Event Name (e.g. Anniversary)"
-                    value={item.name}
-                    onChangeText={(value) => updateImportantDateName(index, value)}
-                  />
-                  <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePickerIndex(index)}>
-                    <Text style={styles.datePickerText}>{item.date ? item.date.toDateString() : 'Select Date 📅'}</Text>
-                  </TouchableOpacity>
-                  {showDatePickerIndex === index && <DateTimePicker value={item.date || new Date()} mode="date" display="default" onChange={(e, d) => onChangeDate(e, d, index)} />}
-                  <TouchableOpacity onPress={() => removeImportantDate(index)} style={styles.removeButton}>
-                    <Text style={styles.removeButtonText}>❌</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              <TouchableOpacity style={styles.addButton} onPress={addImportantDate}>
-                <Text style={styles.addButtonText}>➕ Add Important Date</Text>
-              </TouchableOpacity>
 
               {/* Submit Button */}
               <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
@@ -341,8 +321,19 @@ const Calendar = ({ navigation }) => {
   );
 };
 
-// Reminders Page
+// List of Reminders Page
 const RemindersList = ({ navigation }) => {
+  const [all_reminders, setReminders] = useState([]);
+  
+  useEffect(() => {
+    const fetchNames = async () => {
+      const reminders = await getAllReminders(); // TODO: connect bella's getter here
+      setReminders(reminders);
+    };
+
+    fetchNames();
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1}}>
       {/* Header */}
@@ -355,6 +346,16 @@ const RemindersList = ({ navigation }) => {
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Display All Reminders */}
+      {all_reminders.map((reminder, index) => (
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Profile', {friend_id: reminder.friendID})}
+        >
+          <Text style={styles.pageText}>{reminder.type} {reminder.reminderName}</Text>
+        </TouchableOpacity>
+      ))}
     </GestureHandlerRootView>
   );
 };
