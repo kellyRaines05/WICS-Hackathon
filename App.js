@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Dimensions, Animated, Image, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet,
+  StatusBar, Dimensions, Animated, Image, Alert,
+  Platform, ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
@@ -37,77 +39,181 @@ const Profile = ({ navigation }) => (
 // Add Friend Page
 const AddFriend = ({ navigation }) => {
   const [friendName, setName] = useState('');
+  const [pronouns, setPronouns] = useState([['', '']]);
+  const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+
   const [birthday, setBirthday] = useState(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  
-  // select date
-  const onChangeDate = (event, selectedDate) => {
+  const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
+
+  const [importantDates, setImportantDates] = useState([{name: "", date: null}])
+  const [showDatePickerIndex, setShowDatePickerIndex] = useState(null);
+
+  const [pronounWidth, setPronounWidth] = useState('48%');
+
+  // Handle date selection
+  const onChangeDate = (event, selectedDate, index = null) => {
     if (selectedDate) {
-      setBirthday(selectedDate);
-      setShowDatePicker(false);
+      if (index === null) {
+        // Birthday selection
+        setBirthday(selectedDate);
+        setShowBirthdayPicker(false);
+      } else {
+        // Important date selection
+        const updatedDates = [...importantDates];
+        updatedDates[index].date = selectedDate;
+        setImportantDates(updatedDates);
+        setShowDatePickerIndex(null);
+      }
     }
   };
 
-  // submit friend
+  // Add new pronoun row
+  const addPronounRow = () => {
+    setPronouns([...pronouns, ['', '']]);
+    setPronounWidth("40%");
+  };
+
+  // Remove a pronoun row
+  const removePronounRow = (index) => {
+    if (pronouns.length > 1) {
+      setPronouns(pronouns.filter((_, i) => i !== index));
+      setPronounWidth("48%");
+    }
+  };
+
+  // Update pronoun
+  const updatePronoun = (index, pos, value) => {
+    const updatedPronouns = [...pronouns];
+    updatedPronouns[index][pos] = value;
+    setPronouns(updatedPronouns);
+  };
+
+  // Add new important date row
+  const addImportantDate = () => {
+    setImportantDates([...importantDates, { name: '', date: null }]);
+  };
+
+  // Remove an important date row
+  const removeImportantDate = (index) => {
+    setImportantDates(importantDates.filter((_, i) => i !== index));
+  };
+
+  // Update important date name
+  const updateImportantDateName = (index, value) => {
+    const updatedDates = [...importantDates];
+    updatedDates[index].name = value;
+    setImportantDates(updatedDates);
+  };
+
+  // Submit function
   const handleSubmit = () => {
     if (!friendName.trim()) {
-      Alert.alert("Error", "Please enter a name.");
+      Alert.alert('Error', 'Please enter a name.');
       return;
     }
 
     // TODO: ADD BELLA'S FUNCTION
-    
-    Alert.alert("Success", `Added ${friendName}`);
+
+    Alert.alert('Success', `Added ${friendName}`);
     navigation.goBack();
   };
-  
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Add Friend</Text>
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Text style={styles.settingsText}>⚙️</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.header}>
+              <Text style={styles.welcomeText}>Add Friend</Text>
+              <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate('Settings')}>
+                <Text style={styles.settingsText}>⚙️</Text>
+              </TouchableOpacity>
+            </View>
 
-      <View style={styles.container}>
-        {/* Name Input */}
-        <Text style={styles.label}>Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter friend's name"
-          value={friendName}
-          onChangeText={setName}
-        />
+            <View style={styles.container}>
+              {/* Name Input */}
+              <Text style={styles.label}>Name</Text>
+              <TextInput style={styles.input} placeholder="Enter friend's name" value={friendName} onChangeText={setName} />
 
-        {/* Birthday Picker */}
-        <Text style={styles.label}>Birthday</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {birthday ? birthday.toDateString() : "Select Birthday 🎂"}
-          </Text>
-        </TouchableOpacity>
+              {/* Pronouns Input */}
+              <Text style={styles.label}>Pronouns</Text>
+              {pronouns.map((pair, index) => (
+                <View key={index} style={styles.pronounRow}>
+                  <TextInput
+                    style={[styles.input, styles.smallInput, {width: pronounWidth}]}
+                    placeholder="Subject (e.g. she, he, they)"
+                    value={pair[0]}
+                    onChangeText={(value) => updatePronoun(index, 0, value)}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.smallInput, {width: pronounWidth}]}
+                    placeholder="Object (e.g. her, him, them)"
+                    value={pair[1]}
+                    onChangeText={(value) => updatePronoun(index, 1, value)}
+                  />
+                  {pronouns.length > 1 && (
+                    <TouchableOpacity onPress={() => removePronounRow(index)} style={styles.removeButton}>
+                      <Text style={styles.removeButtonText}>❌</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+              <TouchableOpacity style={styles.addButton} onPress={addPronounRow}>
+                <Text style={styles.addButtonText}>➕ Add Pronoun</Text>
+              </TouchableOpacity>
 
-        {showDatePicker && (
-          <DateTimePicker
-            value={birthday || new Date()}
-            mode="date"
-            display="default"
-            onChange={onChangeDate}
-          />
-        )}
+              {/* Address Input */}
+              <Text style={styles.label}>Address</Text>
+              <TextInput style={styles.input} placeholder="Enter friend's home address" value={address} onChangeText={setAddress} />
 
-        {/* Submit Button */}
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Add Friend</Text>
-        </TouchableOpacity>
-      </View>
+              {/* Phone Number Input */}
+              <Text style={styles.label}>Phone Number</Text>
+              <TextInput style={styles.input} placeholder="Enter friend's phone number" value={phoneNumber} onChangeText={setPhoneNumber} />
+
+              {/* Email Input */}
+              <Text style={styles.label}>Email Address</Text>
+              <TextInput style={styles.input} placeholder="Enter friend's email address" value={email} onChangeText={setEmail} />
+
+              {/* Birthday Picker */}
+              <Text style={styles.label}>Birthday</Text>
+              <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowBirthdayPicker(true)}>
+                <Text style={styles.datePickerText}>{birthday ? birthday.toDateString() : 'Select Birthday 🎂'}</Text>
+              </TouchableOpacity>
+              {showBirthdayPicker && <DateTimePicker value={birthday || new Date()} mode="date" display="default" onChange={(e, d) => onChangeDate(e, d, null)} />}
+
+              {/* Important Dates */}
+              <Text style={styles.label}>Important Dates</Text>
+              {importantDates.map((item, index) => (
+                <View key={index} style={styles.importantDateRow}>
+                  <TextInput
+                    style={[styles.input, {width: "45%"}]}
+                    placeholder="Event Name (e.g. Anniversary)"
+                    value={item.name}
+                    onChangeText={(value) => updateImportantDateName(index, value)}
+                  />
+                  <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePickerIndex(index)}>
+                    <Text style={styles.datePickerText}>{item.date ? item.date.toDateString() : 'Select Date 📅'}</Text>
+                  </TouchableOpacity>
+                  {showDatePickerIndex === index && <DateTimePicker value={item.date || new Date()} mode="date" display="default" onChange={(e, d) => onChangeDate(e, d, index)} />}
+                  <TouchableOpacity onPress={() => removeImportantDate(index)} style={styles.removeButton}>
+                    <Text style={styles.removeButtonText}>❌</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <TouchableOpacity style={styles.addButton} onPress={addImportantDate}>
+                <Text style={styles.addButtonText}>➕ Add Important Date</Text>
+              </TouchableOpacity>
+
+              {/* Submit Button */}
+              <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.submitButtonText}>Add Friend</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 };
@@ -428,6 +534,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
+    marginTop: 5,
   },
   input: {
     borderWidth: 1,
@@ -459,4 +566,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20
+  },
+  smallInput: {
+    width: '48%' 
+  },
+  pronounRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  importantDateRow: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between' 
+  },
+  addButton: {
+    marginVertical: 10, 
+    padding: 10, 
+    backgroundColor: '#ddd', 
+    alignItems: 'center'
+  },
+  addButtonText: {
+    fontSize: 16 
+  },
+  removeButton: { 
+    marginRight: 10, 
+    padding: 5, 
+    borderRadius: 5 
+  },
+  removeButtonText: { 
+    color: 'white', 
+    fontWeight: 'bold' 
+  }
 });
