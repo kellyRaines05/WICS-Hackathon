@@ -18,81 +18,140 @@ const ContactBook = ({ navigation }) => {
   const [friend_names, setNames] = useState([]);
 
   useEffect(() => {
-    const fetchNames = async () => {
-      const fetchedNames = await getAllFriends(); // TODO: connect bella's getter here
-      setNames(fetchedNames);
-    };
-
-    fetchNames();
+    async function getFriendsList() {
+      const path = `${FileSystem.documentDirectory}/friend_list.json`;
+      try {
+        const fileExists = await FileSystem.getInfoAsync(path);
+  
+        if (fileExists.exists) {
+          // get existing data from file
+          const data = await FileSystem.readAsStringAsync(path);
+          setNames(JSON.parse(data));
+        }
+        else {
+          console.log("Cannot find file");
+          setNames([]);
+        }
+      }
+      catch (error) {
+        Alert.alert('Error', `${error}: Try Again Later.`);
+        return false;
+      }
+    }
+    getFriendsList();
   }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1}}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>My Friends</Text>
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Text style={styles.settingsText}>⚙️</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.welcomeText}>My Friends</Text>
+              <TouchableOpacity
+                style={styles.settingsButton}
+                onPress={() => navigation.navigate('Settings')}
+              >
+                <Text style={styles.settingsText}>⚙️</Text>
+              </TouchableOpacity>
+            </View>
 
-      {/* Display All Friends */}
-      {friend_names.map((friend, index) => (
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => navigation.navigate('Profile', {friend_id: friend.friendID})}
-        >
-          <Text style={styles.pageText}> {friend.name} </Text>
-        </TouchableOpacity>
-      ))}
+            {/* Display All Friends */}
+            {friend_names?.map((friend, index) => (
+              <TouchableOpacity
+                style={styles.settingsButton}
+                onPress={() => navigation.navigate('Profile', {friend: friend})}
+              >
+                <Text style={styles.pageText}> {friend.name} </Text>
+              </TouchableOpacity>
+            ))}
+            </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 };
 
 // Profile Page
 const Profile = ({ route, navigation }) => {
-  const { friend_id } = route.params;
+  const { friend } = route.params;
   const [profileImage, setProfileImage] = useState(null);
-  const defaultImage = 'assets/default.png';
+  const defaultImage = require('./assets/default.png');;
 
+  // TODO: change profile pic function, need to request phone access to gallery
   const changeProfilePic = () => {
-    setProfileImage({ uri: '' });
+    setProfileImage({ uri: ''});
   };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.pageText}>This Friends</Text>
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Text style={styles.settingsText}>⚙️</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.welcomeText}>{friend.name}</Text>
+              <TouchableOpacity
+                style={styles.settingsButton}
+                onPress={() => navigation.navigate('Settings')}
+              >
+                <Text style={styles.settingsText}>⚙️</Text>
+              </TouchableOpacity>
+            </View>
 
-      {/* Profile Icon */}
-      <TouchableOpacity onPress={changeProfilePic}>
-        <View style={styles.profileIconContainer}>
-          <Image
-            source={profileImage || defaultImage}
-            style={styles.profileImage}
-            resizeMode="cover"
-          />
-        </View>
-      </TouchableOpacity>
+            {/* Profile Icon */}
+            <TouchableOpacity onPress={changeProfilePic}>
+              <View style={styles.profileIconContainer}>
+                <Image
+                  source={profileImage || defaultImage}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </TouchableOpacity>
 
-      {/* Profile Info */}
+            {/* Profile Info */}
+            <View style={styles.profileContainer}>
+              <Text style={styles.label}>{friend.name}</Text>
+              <Text style={styles.label}>{friend.pronouns}</Text>
+              <Text style={styles.label}>Birthday: {friend.birthday}</Text>
+              <Text style={styles.label}>Address: {friend.address}</Text>
+              <Text style={styles.label}>Phone Number: {friend.phoneNumber}</Text>
+              <Text style={styles.label}>Email: {friend.email}</Text>
+              <Text style={styles.label}/>
+            </View>
 
-      {/* Reminder List */}
+            <View style={styles.container}>
+            <Text style={styles.pageText}>Extra Info</Text>
+              <Text style={styles.label2}>Likes: {friend.likes}</Text>
+              <Text style={styles.label2}>Dislikes: {friend.dislikes}</Text>
+              <Text style={styles.label}/>
+            </View>
+            {/* Reminder List */}
+            <View style={styles.container}>
+              <Text style={styles.pageText}>Reminders</Text>
+              <Text style={styles.label2}>Reminder 1</Text>
+              <Text style={styles.label}/>
+            </View>
 
-      {/* Set Automations */}
+            {/* Set Automations */}
+            <View style={styles.container}>
+              <Text style={styles.pageText}>Automations</Text>
+              <Text style={styles.label2}>Automations 1</Text>
+              <Text style={styles.label}/>
+            </View>
 
-      {/* Display Notebook */}
+            {/* Display Notebook */}
+            <View style={styles.container}>
+              <Text style={styles.pageText}>Notes</Text>
+              <Text style={styles.label2}>Note 1</Text>
+              <Text style={styles.label}/>
+            </View>
+
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 };
@@ -175,7 +234,8 @@ const AddFriend = ({ navigation }) => {
       return true;
     }
     catch (error) {
-      Alert.alert('Error', `${error}: Try Again Later.`);
+      // Alert.alert('Error', `${error}: Try Again Later.`);
+      await FileSystem.writeAsStringAsync(path, JSON.stringify([friendObj], null, 4));
       return false;
     }
   }
@@ -645,7 +705,7 @@ const styles = StyleSheet.create({
   },
   settingsText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 25,
   },
   container: {
     flex: 1,
@@ -746,6 +806,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     marginTop: 5,
   },
+  label2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    marginTop: 5,
+    padding: 10,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -833,5 +900,10 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 2,
+  },
+  profileContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
   },
 });
