@@ -9,12 +9,23 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-
+import { Calendar } from 'react-native-calendars';
 
 // Contact Book Page
 const ContactBook = ({ navigation }) => {
+  const [friend_names, setNames] = useState([]);
+
+  useEffect(() => {
+    const fetchNames = async () => {
+      const fetchedNames = await getAllFriends(); // TODO: connect bella's getter here
+      setNames(fetchedNames);
+    };
+
+    fetchNames();
+  }, []);
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1}}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.welcomeText}>My Friends</Text>
@@ -25,12 +36,24 @@ const ContactBook = ({ navigation }) => {
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Display All Friends */}
+      {friend_names.map((friend, index) => (
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Profile', {friend_id: friend.friendID})}
+        >
+          <Text style={styles.pageText}> {friend.name} </Text>
+        </TouchableOpacity>
+      ))}
     </GestureHandlerRootView>
   );
 };
 
 // Profile Page
-const Profile = ({ navigation }) => {
+const Profile = ({ route, navigation }) => {
+  const { friend_id } = route.params;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       {/* Header */}
@@ -57,9 +80,6 @@ const AddFriend = ({ navigation }) => {
 
   const [birthday, setBirthday] = useState(null);
   const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
-
-  const [importantDates, setImportantDates] = useState([{name: "", date: null}])
-  const [showDatePickerIndex, setShowDatePickerIndex] = useState(null);
 
   const [pronounWidth, setPronounWidth] = useState('48%');
 
@@ -99,23 +119,6 @@ const AddFriend = ({ navigation }) => {
     const updatedPronouns = [...pronouns];
     updatedPronouns[index][pos] = value;
     setPronouns(updatedPronouns);
-  };
-
-  // Add new important date row
-  const addImportantDate = () => {
-    setImportantDates([...importantDates, { name: '', date: null }]);
-  };
-
-  // Remove an important date row
-  const removeImportantDate = (index) => {
-    setImportantDates(importantDates.filter((_, i) => i !== index));
-  };
-
-  // Update important date name
-  const updateImportantDateName = (index, value) => {
-    const updatedDates = [...importantDates];
-    updatedDates[index].name = value;
-    setImportantDates(updatedDates);
   };
 
   // Submit function
@@ -194,29 +197,6 @@ const AddFriend = ({ navigation }) => {
                 <Text style={styles.datePickerText}>{birthday ? birthday.toDateString() : 'Select Birthday 🎂'}</Text>
               </TouchableOpacity>
               {showBirthdayPicker && <DateTimePicker value={birthday || new Date()} mode="date" display="default" onChange={(e, d) => onChangeDate(e, d, null)} />}
-
-              {/* Important Dates */}
-              <Text style={styles.label}>Important Dates</Text>
-              {importantDates.map((item, index) => (
-                <View key={index} style={styles.importantDateRow}>
-                  <TextInput
-                    style={[styles.input, {width: "45%"}]}
-                    placeholder="Event Name (e.g. Anniversary)"
-                    value={item.name}
-                    onChangeText={(value) => updateImportantDateName(index, value)}
-                  />
-                  <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePickerIndex(index)}>
-                    <Text style={styles.datePickerText}>{item.date ? item.date.toDateString() : 'Select Date 📅'}</Text>
-                  </TouchableOpacity>
-                  {showDatePickerIndex === index && <DateTimePicker value={item.date || new Date()} mode="date" display="default" onChange={(e, d) => onChangeDate(e, d, index)} />}
-                  <TouchableOpacity onPress={() => removeImportantDate(index)} style={styles.removeButton}>
-                    <Text style={styles.removeButtonText}>❌</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              <TouchableOpacity style={styles.addButton} onPress={addImportantDate}>
-                <Text style={styles.addButtonText}>➕ Add Important Date</Text>
-              </TouchableOpacity>
 
               {/* Submit Button */}
               <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
@@ -324,12 +304,39 @@ const AddReminder = ({ navigation }) => {
 };
 
 // Calendar Page
-const Calendar = ({ navigation }) => {
+const CalendarUI = ({ navigation }) => {
+  const [all_reminders, setReminders] = useState([]);
+
+  // const getAllReminders = async () => {
+  //   // Simulated reminders data structure
+  //   return [
+  //     { nextNotification: '2025-03-29', reminderName: 'Test Reminder 1' },
+  //     { nextNotification: '2025-03-30', reminderName: 'Test Reminder 2' },
+  //     { nextNotification: '2025-03-31', reminderName: 'Test Reminder 3' },
+  //   ];
+  // };
+  
+  useEffect(() => {
+    const fetchNames = async () => {
+      const reminders = await getAllReminders(); // TODO: connect bella's getter here
+      setReminders(reminders);
+    };
+
+    fetchNames();
+  }, []);
+
+
+  const markedDates = all_reminders.reduce((acc, reminder) => {
+    const formattedDate = reminder.nextNotification.toLocaleString();
+    acc[formattedDate] = { selected: true, selectedColor: 'blue' };
+    return acc;
+  }, {});
+
   return (
     <GestureHandlerRootView style={{ flex: 1}}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Calendar Here</Text>
+        <Text style={styles.welcomeText}>Calendar</Text>
         <TouchableOpacity
           style={styles.settingsButton}
           onPress={() => navigation.navigate('Settings')}
@@ -337,12 +344,28 @@ const Calendar = ({ navigation }) => {
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Calendar */}
+      <View style={styles.calendarContainer}>
+        <Calendar markedDates={markedDates} style={styles.calendar}/>
+      </View>
     </GestureHandlerRootView>
   );
 };
 
-// Reminders Page
+// List of Reminders Page
 const RemindersList = ({ navigation }) => {
+  const [all_reminders, setReminders] = useState([]);
+  
+  useEffect(() => {
+    const fetchNames = async () => {
+      const reminders = await getAllReminders(); // TODO: connect bella's getter here
+      setReminders(reminders);
+    };
+
+    fetchNames();
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1}}>
       {/* Header */}
@@ -355,6 +378,16 @@ const RemindersList = ({ navigation }) => {
           <Text style={styles.settingsText}>⚙️</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Display All Reminders */}
+      {all_reminders.map((reminder, index) => (
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate('Profile', {friend_id: reminder.friendID})}
+        >
+          <Text style={styles.pageText}>{reminder.type} {reminder.reminderName}</Text>
+        </TouchableOpacity>
+      ))}
     </GestureHandlerRootView>
   );
 };
@@ -453,7 +486,7 @@ const HomeScreen = ({ navigation }) => {
   const [widgets, setWidgetText] = useState([
     { id: 'reminders', title: '🟡 Reminders', content: '[Autofill value] Upcoming'},
     { id: 'contact_book', title: '🔗 Contact Book', content: 'You have [Autofill value] Contacts' },
-    { id: 'calendar', title: '📅 Calendar', content: 'Open Calendar' },
+    { id: 'calendarUI', title: '📅 Calendar', content: 'Open Calendar' },
   ]);
 
   return (
@@ -481,7 +514,7 @@ const HomeScreen = ({ navigation }) => {
               onLongPress={drag}
               onPress={() => {
                 if (item.id === 'contact_book') navigation.navigate('ContactBook');
-                if (item.id === 'calendar') navigation.navigate('Calendar');
+                if (item.id === 'calendarUI') navigation.navigate('CalendarUI');
                 if (item.id === 'reminders') navigation.navigate('RemindersPage')
               }}
             >
@@ -509,7 +542,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="ContactBook" component={ContactBook} />
-        <Stack.Screen name="Calendar" component={Calendar} />
+        <Stack.Screen name="CalendarUI" component={CalendarUI} />
         <Stack.Screen name="RemindersPage" component={RemindersList} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Settings" component={Settings} />
@@ -706,5 +739,17 @@ const styles = StyleSheet.create({
   removeButtonText: { 
     color: 'white', 
     fontWeight: 'bold' 
-  }
+  },
+  calendarContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  calendar: {
+    width: 300,
+    height: 400,
+    borderRadius: 10,
+    padding: 10,
+  },
 });
