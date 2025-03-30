@@ -41,4 +41,18 @@ class Reminder
         this.nextNotification = date;
     }
 
+    toString() {
+        return `Reminder [ID: ${this.reminderID}, Name: ${this.reminderName}, Type: ${this.type}, Next Notification: ${this.nextNotification.toLocaleString()}]`;
+    }
+
+    toObject() {
+        return {
+            friendID: this.friendID,
+            reminderName: this.reminderName,
+            reminderID: this.reminderID,
+            type: this.type,
+            messageDraft: this.messageDraft,
+            nextNotification: this.nextNotification
+        };
+    }
 }
