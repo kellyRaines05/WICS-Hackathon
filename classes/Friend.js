@@ -68,7 +68,7 @@ class Friend {
     toObject() {
       return {
         friendID: this.friendID, 
-        name: this.name,  // Corrected typo: 'this.nanme' → 'this.name'
+        name: this.name,
         pronouns: this.pronouns,
         address: this.address,
         birthday: this.birthday,
@@ -77,7 +77,7 @@ class Friend {
         dislikes: this.dislikes,
         phoneNumber: this.phoneNumber,
         email: this.email,
-        notebook: this.notebook.toObject(),  // Will call notebook's toObject method
+        notebook: this.notebook.toObject(),
       };
     }
 
